@@ -1,0 +1,4 @@
+grpc:
+  server:
+    port: 9091
+    enable-reflection: true
