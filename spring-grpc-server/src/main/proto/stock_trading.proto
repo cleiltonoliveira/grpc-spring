@@ -1,23 +1,42 @@
 syntax = "proto3";
 
 package stocktrading;
-option java_multiple_files=true;
-option java_package="com.spring_grpc.grpc";
-option java_outer_classname="StockTradingProto";
+option java_multiple_files = true;
+option java_package = "com.spring_grpc.grpc";
+option java_outer_classname = "StockTradingProto";
 
 service StockTradingService {
 
   // Unary - RPC -> get current stock price
   rpc getStock(StockRequest) returns (StockResponse);
 
+  // server streaming
+  rpc subscribeStockPrice(StockRequest) returns (stream StockResponse);
+
+  // client streaming - place multiple stock orders
+  rpc bulkStockOrder(stream StockOrder) returns (OrderSummary);
 }
 
 message StockRequest {
-  string stock_symbol=1;
+  string stock_symbol = 1;
 }
 
 message StockResponse {
-  string stock_symbol=1;
-  double price=2;
-  string timestamp=3;
+  string stock_symbol = 1;
+  double price = 2;
+  string timestamp = 3;
+}
+
+message StockOrder {
+  string order_id = 1;
+  string stock_symbol = 2;
+  int32 quantity = 3;
+  double price = 4;
+  string order_type = 5; // buy or sell
+}
+
+message OrderSummary {
+  int32 total_orders = 1;
+  double total_amount = 2;
+  int32 success_count = 3;
 }

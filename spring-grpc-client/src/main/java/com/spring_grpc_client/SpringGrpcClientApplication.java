@@ -21,9 +21,10 @@ public class SpringGrpcClientApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        var stock = stockClientService.getStockPrice("GGBR4");
+//        var stock = stockClientService.getStockPrice("GGBR4");
+//        stockClientService.subscribeStockPrice("GGBR4");
+//        System.out.println("GRPC result: " + stock);
 
-        System.out.println("GRPC result: " + stock);
-
+        stockClientService.placeBulkOrders();
     }
 }
