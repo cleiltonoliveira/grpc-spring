@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringGrpcClientApplication implements CommandLineRunner {
 
-    private StockClientService stockClientService;
+    private final StockClientService stockClientService;
 
     public SpringGrpcClientApplication(StockClientService stockClientService) {
         this.stockClientService = stockClientService;
@@ -21,10 +21,17 @@ public class SpringGrpcClientApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Unary call
 //        var stock = stockClientService.getStockPrice("GGBR4");
-//        stockClientService.subscribeStockPrice("GGBR4");
 //        System.out.println("GRPC result: " + stock);
+//
+//        // server stream
+//        stockClientService.subscribeStockPrice("GGBR4");
+//
+//        // client stream
+//        stockClientService.placeBulkOrders();
 
-        stockClientService.placeBulkOrders();
+        // bidirectional streaming
+        stockClientService.startLiveTrading();
     }
 }

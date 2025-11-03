@@ -90,4 +90,44 @@ public class StockTradingServiceImpl extends StockTradingServiceGrpc.StockTradin
         };
 
     }
+
+    @Override
+    public StreamObserver<StockOrder> liveTrading(StreamObserver<TradeStatus> responseObserver) {
+
+
+        return new StreamObserver<>() {
+            @Override
+            public void onNext(StockOrder stockOrder) {
+                System.out.println("Received Order #" + stockOrder.getOrderId());
+
+                String status = "EXECUTED";
+                String message = "Order placed successfully";
+
+                if (stockOrder.getQuantity() <= 0) {
+                    status = "FAILED";
+                    message = "Invalid quantity";
+                }
+
+                TradeStatus tradeStatus = TradeStatus.newBuilder()
+                        .setOrderId(stockOrder.getOrderId())
+                        .setStatus(status)
+                        .setMessage(message)
+                        .setTimestamp(Instant.now().toString())
+                        .build();
+
+                responseObserver.onNext(tradeStatus);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("Error? " + throwable.getMessage());
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onCompleted();
+            }
+        };
+    }
 }

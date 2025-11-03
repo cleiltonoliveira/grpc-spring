@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockClientService {
 
-//    @GrpcClient("stockService")
-//    private StockTradingServiceGrpc.StockTradingServiceBlockingStub stockTradingServiceBlockingStub;
+    @GrpcClient("stockService")
+    private StockTradingServiceGrpc.StockTradingServiceBlockingStub stockTradingServiceBlockingStub;
 
     @GrpcClient("stockService")
     private StockTradingServiceGrpc.StockTradingServiceStub stockTradingServiceStub;
 
-//    public StockResponse getStockPrice(String stockSymbol) {
-//        StockRequest request = StockRequest.newBuilder().setStockSymbol(stockSymbol).build();
-//
-//      return    stockTradingServiceBlockingStub.getStock(request);
-//    }
+    public StockResponse getStockPrice(String stockSymbol) {
+        StockRequest request = StockRequest.newBuilder().setStockSymbol(stockSymbol).build();
+
+        return stockTradingServiceBlockingStub.getStock(request);
+    }
 
     public void subscribeStockPrice(String symbol) {
         StockRequest request = StockRequest.newBuilder().setStockSymbol(symbol).build();
@@ -100,6 +100,39 @@ public class StockClientService {
         } catch (Exception e) {
             requestObserver.onError(e);
         }
+    }
+
+    public void startLiveTrading() throws InterruptedException {
+        StreamObserver<StockOrder> streamObserver = stockTradingServiceStub.liveTrading(new StreamObserver<>() {
+            @Override
+            public void onNext(TradeStatus tradeStatus) {
+                System.out.println("Server response: " + tradeStatus);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("Server error: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server completed: ");
+            }
+        });
+
+        for (int i = 1; i <= 10; i++) {
+            StockOrder stockOrder = StockOrder.newBuilder()
+                    .setOrderId("ORDER-" + i)
+                    .setStockSymbol("APPL")
+                    .setPrice(15 + i)
+                    .setOrderType("BUY")
+                    .setQuantity(2 * i)
+                    .build();
+            streamObserver.onNext(stockOrder);
+            Thread.sleep(500);
+        }
+
+        streamObserver.onCompleted();
     }
 
 }
